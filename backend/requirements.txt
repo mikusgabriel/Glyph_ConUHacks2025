@@ -1,3 +1,6 @@
-Flask
-openai
+flask
+flask-sock
 python-dotenv
+spacy
+spacy-cleaner
+# python -m spacy download en_core_web_sm
