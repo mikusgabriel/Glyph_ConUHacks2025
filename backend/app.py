@@ -8,26 +8,47 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 
+@app.route("/", methods=["POST"])
+def send_message():
+    try:
+        json_message = request.json()
 
-@app.route("/",methods=["POST"])
+        message = json.loads(json_message)
+        print(message)
+
+        requests.post("localhost:5000")
+
+    except json:
+        print("error", json)
 
 
 # Namespace for Unity
-class UnityNamespace(Namespace):
+class MetaHeadsetNamespace(Namespace):
     def on_connect(self):
-        print("Unity client connected to /unity")
+        print("Meta Headset connected to /meta")
 
     def on_disconnect(self):
-        print("Unity client disconnected from /unity")
+        print("Meta Headset disconnected from /meta")
 
     def on_message(self, data):
-        print(f"Unity /unity 'message' event: {data}")
-        socketio.emit("message", data, namespace="/unity")
+        print(f"Unity /meta 'message' event: {data}")
+        socketio.emit("message", data, namespace="/meta")
 
-   
+    def on_hand_data(self,data):
+        print(f"Meta Headset sent hand data: {data}")
 
 
-socketio.on_namespace(UnityNamespace("/unity"))
+        socketio.emit("message",data,namespace="/meta")
+
+    def on_user_voice_command(self,data):
+        print(f"Meta Headset sent voice message from user:{data}")
+
+        
+
+
+        #decide to what to do with the transcripted message
+
+socketio.on_namespace(MetaHeadsetNamespace("/meta"))
 
 
 if __name__ == "__main__":
