@@ -1,6 +1,6 @@
 import spacy
 import spacy_cleaner
-from spacy_cleaner import processing, Cleaner
+from spacy_cleaner import processing
 
 
 # Load the small English model
