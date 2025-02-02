@@ -1,53 +1,91 @@
 using UnityEngine;
 using Oculus.Interaction.Input;
-using System;
+using TMPro;
 
 public class HandTracker : MonoBehaviour
 {
+
     [SerializeField]
     private ServerConnection server;
+    [SerializeField] private Hand LeftHand;
+    [SerializeField] private Hand RightHand;
+    [SerializeField] private OVRCameraRig cameraRig;
+    [SerializeField] private TMP_Text uiText; // Reference to UI Text (TextMeshPro)
 
-
-    [Header("Hands")]
-    [SerializeField]
-    private Hand leftHand;
-    [SerializeField]
-    private Hand rightHand;
-
-    [Header("Settings")]
-    [SerializeField]
-    private float sendCooldown = 0.2f;
-    private float lastTimeDataSent = 0;
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        Debug.Log(JsonUtility.ToJson(LeftHand.GetData()));
+
+        if (uiText == null)
+        {
+            Debug.LogError("UI Text is not assigned! Assign a TextMeshPro UI object in the Inspector.");
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        lastTimeDataSent += Time.deltaTime;
-        if (lastTimeDataSent < sendCooldown)
+        if (cameraRig == null)
+        {
+            Debug.LogError("CameraRig is not assigned! Please assign an OVRCameraRig in the Inspector.");
             return;
-        else
-            lastTimeDataSent -= sendCooldown;
+        }
+        Vector3 handPosition = LeftHand.GetData().Root.position;
 
-        Debug.Log(leftHand.GetData());
-        server.SendJson(new MessageData
+        Vector3 headsetPosition = cameraRig.centerEyeAnchor.position;
+        Quaternion headsetRotation = cameraRig.centerEyeAnchor.rotation;
+        Vector3 euler = headsetRotation.eulerAngles;
+
+        Vector3 delta = handPosition - headsetPosition;
+
+        Quaternion headsetRotat = Quaternion.Euler(euler);
+
+        Vector3 handRelativeToHead = Quaternion.Inverse(headsetRotat) * delta;
+
+        string logText = $"Delta: {delta}\n" +
+                         $"Head Rotation {headsetRotat}\n" +
+                         $"Hand relative to Head{handRelativeToHead}";
+
+        Vector3 leftH = getNormalizedHand(LeftHand);
+        Vector3 rightH = getNormalizedHand(RightHand);
+
+        server.SendJson(new HandsData
         {
             type = "hands_data",
-            left = leftHand.GetData(),
-            right = rightHand.GetData(),
+            left = leftH,
+            right = rightH,
         });
+
+        Debug.Log(logText);
+
+        // Update UI Text
+        if (uiText != null)
+        {
+            uiText.text = logText;
+        }
     }
 
-    [Serializable]
-    class MessageData
+    Vector3 getNormalizedHand(Hand hand)
+    {
+        Vector3 handPosition = hand.GetData().Root.position;
+
+        Vector3 headsetPosition = cameraRig.centerEyeAnchor.position;
+        Quaternion headsetRotation = cameraRig.centerEyeAnchor.rotation;
+        Vector3 euler = headsetRotation.eulerAngles;
+
+        Vector3 delta = handPosition - headsetPosition;
+
+        Quaternion headsetRotat = Quaternion.Euler(euler);
+
+        Vector3 handRelativeToHead = Quaternion.Inverse(headsetRotat) * delta;
+
+        return handRelativeToHead;
+    }
+
+    [System.Serializable]
+    class HandsData
     {
         public string type;
-        public HandDataAsset left;
-        public HandDataAsset right;
+        public Vector3 left;
+        public Vector3 right;
     }
 }
