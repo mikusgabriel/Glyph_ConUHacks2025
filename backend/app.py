@@ -64,4 +64,4 @@ def meta_websocket(ws):
             ws.send(json.dumps({"status": "ok", "event": "generic_message_received"}))
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(port=3000)

@@ -1,18 +1,26 @@
 using UnityEngine;
 using Oculus.Interaction.Input;
 using System;
+using UnityEngine.UI;
 
-public class HandTracker : MonoBehaviour
+public class MainMenu : MonoBehaviour
 {
     [SerializeField]
     private ServerConnection server;
 
 
-    [Header("Hands")]
+    [Header("Panels")]
     [SerializeField]
-    private Hand leftHand;
+    private Button main;
     [SerializeField]
-    private Hand rightHand;
+    private Button sttOccupation;
+
+
+    [Header("Buttons")]
+    [SerializeField]
+    private Button leftHand;
+    [SerializeField]
+    private Button rightHand;
 
     [Header("Settings")]
     [SerializeField]
@@ -34,12 +42,25 @@ public class HandTracker : MonoBehaviour
         else
             lastTimeDataSent -= sendCooldown;
 
-        Debug.Log(leftHand.GetData());
         server.SendJson(new MessageData
         {
-            type = "hands_data",
-            left = leftHand.GetData(),
-            right = rightHand.GetData(),
+            type = "start_all",
+        });
+    }
+
+    void StartDiscover()
+    {
+        server.SendJson(new MessageData
+        {
+            type = "start_discover",
+        });
+    }
+
+    void StartConversation()
+    {
+        server.SendJson(new MessageData
+        {
+            type = "start_conversation",
         });
     }
 
@@ -47,7 +68,6 @@ public class HandTracker : MonoBehaviour
     class MessageData
     {
         public string type;
-        public HandDataAsset left;
-        public HandDataAsset right;
+        public string occupation;
     }
 }
