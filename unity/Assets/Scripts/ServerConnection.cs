@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class ServerConnection : MonoBehaviour
 {
+    [SerializeField]
+    private Puppeter puppeter;
+
     private WebSocket websocket;
     private readonly string serverUrl = "wss://helpful-blatantly-koi.ngrok-free.app/meta";
 

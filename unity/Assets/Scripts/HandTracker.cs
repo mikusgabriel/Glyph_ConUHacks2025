@@ -5,38 +5,47 @@ using Unity.VisualScripting;
 
 public class HandTracker : MonoBehaviour
 {
-
+    [Header("Objects")]
     [SerializeField]
     private ServerConnection server;
-    [SerializeField] private Hand LeftHand;
-    [SerializeField] private Hand RightHand;
-    [SerializeField] private OVRCameraRig cameraRig;
+    [SerializeField]
+    private Hand LeftHand;
+    [SerializeField]
+    private Hand RightHand;
+    [SerializeField]
+    private OVRCameraRig cameraRig;
+
+    [Header("Settings")]
+    [SerializeField]
+    private float sendCooldown = 0.2f;
+    private float lastTimeDataSent = 0;
 
 
     void Update()
     {
-        Vector3 leftH = getNormalizedHand(LeftHand);
-        Vector3 rightH = getNormalizedHand(RightHand);
-        // Debug.Log($"{leftH}");
+        lastTimeDataSent += Time.deltaTime;
+        if (lastTimeDataSent < sendCooldown)
+            return;
+        else
+            lastTimeDataSent -= sendCooldown;
+
         server.SendJson(new HandsData
         {
             type = "hands_data",
-            left = leftH,
-            right = rightH,
+            left = GetNormalizedHand(LeftHand),
+            right = GetNormalizedHand(RightHand),
         });
     }
 
-    Vector3 getNormalizedHand(Hand hand)
+    Vector3 GetNormalizedHand(Hand hand)
     {
         Vector3 handPosition = hand.GetData().Root.position;
 
         cameraRig.centerEyeAnchor.GetPositionAndRotation(out Vector3 headsetPosition, out Quaternion headsetRotation);
         Vector3 euler = headsetRotation.eulerAngles;
-
         Vector3 delta = handPosition - headsetPosition;
 
         Quaternion headsetRotat = Quaternion.Euler(euler);
-
         Vector3 handRelativeToHead = Quaternion.Inverse(headsetRotat) * delta;
 
         return handRelativeToHead;
