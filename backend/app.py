@@ -11,8 +11,8 @@ tab = [
     # "ALLERGIC", "HEART", "SHOCK",  "BREATHE", "HELLO", "THANK", "PLEASE", "SORRY", "NAME",
     # "WHERE", "WHO", "WHAT", "WHEN", "WHY",
     # "HOW", "YES", "NO", "WANT", "NEED", "GO", "COME", "LIKE", "DISLIKE", "HAPPY", "SAD",
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J","K",
-    "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z","thank","sorry",
+    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K",
+    "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "sorry", "thank",
     "help"
 ]
 
@@ -82,16 +82,19 @@ def meta_websocket(ws):
                     changed = False
                     list = []
                     index += 1
-                    if index % 10 == 0 and index != 0:
+                    if index % 5 == 0 and index != 0:
                         word_index += 1
                         index = 0
 
                 letter = "WOrd"
+                for i in range(len(letter)):
+                    letter
 
-                print("here")
                 ws.send(json.dumps({
                     "type": "letter",
-                    "letter": letter  # Include the actual data
+                    "letter": letter,
+                    "position": 1
+
                 }))
 
         elif event_type == "start_occupation":
