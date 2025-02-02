@@ -1,8 +1,7 @@
 import json
 from flask import Flask, request
 from flask_sock import Sock  # <-- standard websockets for Flask
-
-
+import json
 
 app = Flask(__name__)
 sock = Sock(app)
@@ -37,20 +36,41 @@ def meta_websocket(ws):
         event_type = data.get("event")
         payload = data.get("payload",{})
 
-        if event_type == "hands_all":
-            print(f"Meta Headset sent hand data: {payload}")
+        if event_type == "hands_data":
+            # print(f"Meta Headset sent hand data: {payload}")
             # Possibly broadcast, handle logic, etc.
             ws.send(json.dumps({"status": "ok", "event": "hand_data_received"}))
 
-        if event_type == "hands_occupation":
+        elif event_type == "start_occupation":
             print(f"Meta Headset sent hand data: {payload}")
             # Possibly broadcast, handle logic, etc.
-            ws.send(json.dumps({"status": "ok", "event": "hand_data_received"}))
+            ws.send(json.dumps({"status": "ok", "event": "start_occupation"}))
 
-        if event_type == "hands_communication":
+        elif event_type == "start_discover":
                 print(f"Meta Headset sent hand data: {payload}")
                 # Possibly broadcast, handle logic, etc.
-                ws.send(json.dumps({"status": "ok", "event": "hand_data_received"}))
+                ws.send(json.dumps({"status": "ok", "event": "start_discover"}))
+        elif event_type == "start_conversation":
+                print(f"Meta Headset sent hand data: {payload}")
+                # Possibly broadcast, handle logic, etc.
+                ws.send(json.dumps({"status": "ok", "event": "start_conversation"}))
+        elif event_type == "hands_recording":
+                print(f"Meta Headset sent hand data: {payload}")
+                # Possibly broadcast, handle logic, etc.
+                
+                with open('data.json', 'r') as file:
+                    data = json.load(file)
+
+               
+                data['frames'].append(payload)
+                
+
+                # 3. Write the updated data back to the file
+                with open('data.json', 'w') as file:
+                    json.dump(data, file, indent=4) 
+
+                ws.send(json.dumps({"status": "ok", "event": "hands_recording"}))
+
 
 
         elif event_type == "user_voice_command":

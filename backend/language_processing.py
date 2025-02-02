@@ -23,7 +23,7 @@ def most_important_word_in_sentence(sentence: list, target_word: str) -> str:
     closest_weight = 0
     for words in cleaned_sentence:
         print(words)
-       
+
         cleaned_word_weight = nlp(words)
 
         similarity = cleaned_word_weight.similarity(target_word_weight)
@@ -45,9 +45,9 @@ def getClosestOccupation():
     print(f"Target word: '{target_word}'")
     print(f"Most important related word: '{important_word}'")
 
+
 def getRelatedSigns():
     pass
-
 
 
 if __name__ == "__main__":
