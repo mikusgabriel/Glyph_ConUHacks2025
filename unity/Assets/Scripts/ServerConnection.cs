@@ -84,7 +84,25 @@ public class ServerConnection : MonoBehaviour
                 var nextLetter = JsonUtility.FromJson<LetterJsonData>(message);
                 UpdateLetter(nextLetter);
                 break;
+            case "puppet-left":
+                var puppetLeft = JsonUtility.FromJson<PuppetJsonData>(message);
+                puppeter.StartAnimateLeftHand(puppetLeft.initial, puppetLeft.final, puppetLeft.initialRoot, puppetLeft.finalRoot);
+                break;
+            case "puppet-right":
+                var puppetRight = JsonUtility.FromJson<PuppetJsonData>(message);
+                puppeter.StartAnimateRightHand(puppetRight.initial, puppetRight.final, puppetRight.initialRoot, puppetRight.finalRoot);
+                break;
+            case "puppet-stop":
+                puppeter.StopAnimateLeftHand();
+                puppeter.StopAnimateRightHand();
+                break;
         }
+    }
+
+    public void PuperStop()
+    {
+        puppeter.StopAnimateLeftHand();
+        puppeter.StopAnimateRightHand();
     }
 
     public async void SendJson(object obj)
@@ -144,5 +162,14 @@ public class ServerConnection : MonoBehaviour
     private class TalkJsonData : JsonData
     {
         public string text;
+    }
+
+    [Serializable]
+    private class PuppetJsonData : JsonData
+    {
+        public Pose[] initial;
+        public Pose[] final;
+        public Pose initialRoot;
+        public Pose finalRoot;
     }
 }

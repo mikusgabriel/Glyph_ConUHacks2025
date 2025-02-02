@@ -26,6 +26,7 @@ public class MainMenu : MonoBehaviour
         welcomePanel.SetActive(true);
         gamePanel.SetActive(false);
         conversePanel.SetActive(false);
+        server.PuperStop();
     }
 
     public void OnClickStartAlphabet()
@@ -38,6 +39,7 @@ public class MainMenu : MonoBehaviour
         welcomePanel.SetActive(false);
         gamePanel.SetActive(true);
         conversePanel.SetActive(false);
+        server.PuperStop();
     }
 
     public void OnClickStartConversation()
@@ -51,6 +53,7 @@ public class MainMenu : MonoBehaviour
         gamePanel.SetActive(false);
         conversePanel.SetActive(true);
         server.aiTextReponse.text = "";
+        server.PuperStop();
     }
 
     [Serializable]

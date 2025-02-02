@@ -24,7 +24,7 @@ public class Puppeter : MonoBehaviour
     private LTDescr rightAnimation;
 
 
-    public void StartAnimateLeftHand(Pose[] inital, Pose[] final)
+    public void StartAnimateLeftHand(Pose[] inital, Pose[] final, Pose initialRoot, Pose finalRoot)
     {
         leftHand.SetActive(true);
         leftAnimation = LeanTween.value(0, 1, duration)
@@ -43,11 +43,15 @@ public class Puppeter : MonoBehaviour
                 data[i] = new Pose(pos, Quaternion.Euler(rot));
             }
 
-            leftHandData.SetCurrentPoses(data, data[1]);
+            Vector3 posR = initialRatio * initialRoot.position + finalRatio * finalRoot.position;
+            Vector3 rotR = initialRatio * initialRoot.rotation.eulerAngles + finalRatio * finalRoot.rotation.eulerAngles;
+            Pose root = new Pose(posR, Quaternion.Euler(rotR));
+
+            leftHandData.SetCurrentPoses(data, root);
         });
     }
 
-    public void StartAnimateRightHand(Pose[] inital, Pose[] final)
+    public void StartAnimateRightHand(Pose[] inital, Pose[] final, Pose initialRoot, Pose finalRoot)
     {
         rightHand.SetActive(true);
         rightAnimation = LeanTween.value(0, 1, duration)
@@ -65,6 +69,10 @@ public class Puppeter : MonoBehaviour
                 Vector3 rot = initialRatio * inital[i].rotation.eulerAngles + finalRatio * final[i].rotation.eulerAngles;
                 data[i] = new Pose(pos, Quaternion.Euler(rot));
             }
+
+            Vector3 posR = initialRatio * initialRoot.position + finalRatio * finalRoot.position;
+            Vector3 rotR = initialRatio * initialRoot.rotation.eulerAngles + finalRatio * finalRoot.rotation.eulerAngles;
+            Pose root = new Pose(posR, Quaternion.Euler(rotR));
 
             rightHandData.SetCurrentPoses(data, data[1]);
         });
