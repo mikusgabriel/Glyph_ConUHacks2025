@@ -3,6 +3,8 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using TMPro;
+using UnityEngine.Rendering; // Import TextMeshPro for UI
 
 public class ServerConnection : MonoBehaviour
 {
@@ -11,14 +13,31 @@ public class ServerConnection : MonoBehaviour
 
     private WebSocket websocket;
     private readonly string serverUrl = "wss://helpful-blatantly-koi.ngrok-free.app/meta";
+    private bool isConnected = false; // ✅ Connection state
+    [SerializeField] private TMP_Text connectionStatusText; // ✅ UI Text for WebSocket status
+    [SerializeField] private TMP_Text currentLetter; // ✅ UI Text for WebSocket status
+    private string old_letter; // ✅ UI Text for WebSocket status
+    [SerializeField] private AudioSource audioSource; // ✅ Audio player
+    [SerializeField] private AudioClip highlightSound; // ✅ Assignable sound clip
+
 
 
     private async void Start()
     {
         websocket = new WebSocket(serverUrl);
+        websocket.OnOpen += () =>
+        {
+            Debug.Log("✅ Server Connected");
+            isConnected = true; // ✅ Set connection status
+            UpdateConnectionUI();
+        };
 
-        websocket.OnOpen += () => Debug.Log("Server Connected");
-        websocket.OnClose += (code) => Debug.Log("Server Disconnected: " + code);
+        websocket.OnClose += (code) =>
+        {
+            Debug.Log("❌ Server Disconnected: " + code);
+            isConnected = false; // ✅ Update connection state
+            UpdateConnectionUI();
+        };
         websocket.OnError += (error) => Debug.LogError("WebSocket Error: " + error);
         websocket.OnMessage += (bytes) =>
         {
@@ -44,8 +63,10 @@ public class ServerConnection : MonoBehaviour
     {
         if (websocket.State == WebSocketState.Closed || websocket.State == WebSocketState.Closing)
         {
-            Debug.Log("Reconnecting...");
+            Debug.Log("🔄 Reconnecting...");
             await websocket.Connect();
+            isConnected = websocket.State == WebSocketState.Open;
+            UpdateConnectionUI();
         }
 
 #if !UNITY_WEBGL || UNITY_EDITOR
@@ -62,6 +83,10 @@ public class ServerConnection : MonoBehaviour
         {
             case "spawn":
                 var data = JsonUtility.FromJson<SpawnJsonData>(message);
+                break;
+            case "letter":
+                var nextLetter = JsonUtility.FromJson<LetterJsonData>(message);
+                // UpdateLetter(nextLetter);
                 break;
         }
     }
@@ -80,10 +105,44 @@ public class ServerConnection : MonoBehaviour
         }
     }
 
+    private void UpdateLetter(LetterJsonData message)
+    {
+        if (connectionStatusText != null)
+        {
+            int position;
+            if (!int.TryParse(message.position, out position))
+            {
+                Debug.LogError($"Invalid position value: {message.position}");
+            }
+            currentLetter.text = $"<color=green>{message.word.Substring(0, position)}</color>" +
+                     $"<color=red>{message.word.Substring(position)}</color>";
+            if (position == message.word.Length && audioSource != null && highlightSound != null)
+            {
+                audioSource.PlayOneShot(highlightSound);
+            }
+        }
+    }
+
+    private void UpdateConnectionUI()
+    {
+        if (connectionStatusText != null)
+        {
+            connectionStatusText.text = $"WebSocket: {(isConnected ? "<color=green>Connected</color>" : "<color=red>Disconnected</color>")}";
+        }
+    }
+
+
     [Serializable]
     private class JsonData
     {
         public string type;
+    }
+
+    [Serializable]
+    private class LetterJsonData : JsonData
+    {
+        public string word;
+        public string position;
     }
 
     [Serializable]

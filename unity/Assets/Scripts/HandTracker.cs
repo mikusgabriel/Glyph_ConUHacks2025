@@ -2,7 +2,8 @@ using UnityEngine;
 using Oculus.Interaction.Input;
 using TMPro;
 using Unity.VisualScripting;
-
+using Oculus.Interaction;
+using System.Linq;
 public class HandTracker : MonoBehaviour
 {
     [Header("Objects")]
@@ -17,7 +18,7 @@ public class HandTracker : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField]
-    private float sendCooldown = 0.2f;
+    private float sendCooldown = 0.05f;
     private float lastTimeDataSent = 0;
 
 
@@ -29,38 +30,45 @@ public class HandTracker : MonoBehaviour
         else
             lastTimeDataSent -= sendCooldown;
 
+        cameraRig.centerEyeAnchor.GetPositionAndRotation(out Vector3 headsetPosition, out Quaternion headsetRotation);
+
+        Vector3 LeftRoothandPosition = LeftHand.GetData().Root.position;
+        Vector3 RightRoothandPosition = RightHand.GetData().Root.position;
+
+        Quaternion RightRoothandRotation = RightHand.GetData().Root.rotation;
+        Quaternion LeftRoothandRotation = LeftHand.GetData().Root.rotation;
+
+        Pose[] lefthandJointsPositions = LeftHand.GetData().JointPoses;
+        Pose[] righthandJointsPositions = RightHand.GetData().JointPoses;
+
         server.SendJson(new HandsData
         {
             type = "hands_data",
-            left = GetNormalizedHand(LeftHand),
-            right = GetNormalizedHand(RightHand),
+            left = lefthandJointsPositions,
+            right = righthandJointsPositions,
+            rootL = LeftRoothandPosition,
+            rootR = RightRoothandPosition,
+            RighthandRotation = RightRoothandRotation,
+            LefthandRotation = LeftRoothandRotation,
+            headPos = headsetPosition,
+            headRot = headsetRotation
         });
     }
 
-    Vector3 GetNormalizedHand(Hand hand)
-    {
-        Vector3 handPosition = hand.GetData().Root.position;
-
-        cameraRig.centerEyeAnchor.GetPositionAndRotation(out Vector3 headsetPosition, out Quaternion headsetRotation);
-        Vector3 euler = headsetRotation.eulerAngles;
-        Vector3 delta = handPosition - headsetPosition;
-
-        Quaternion headsetRotat = Quaternion.Euler(euler);
-        Vector3 handRelativeToHead = Quaternion.Inverse(headsetRotat) * delta;
-
-        return handRelativeToHead;
-    }
-
-    void Record(Hand left, Hand right)
-    {
-
-    }
 
     [System.Serializable]
     class HandsData
     {
         public string type;
-        public Vector3 left;
-        public Vector3 right;
+        public Pose[] left;
+        public Pose[] right;
+        public Vector3 rootL;
+        public Vector3 rootR;
+
+        public Quaternion RighthandRotation;
+        public Quaternion LefthandRotation;
+        public Vector3 headPos;
+        public Quaternion headRot;
+
     }
 }
