@@ -12,7 +12,21 @@ public class MainMenu : MonoBehaviour
     private GameObject welcomePanel;
     [SerializeField]
     private GameObject gamePanel;
+    [SerializeField]
+    private GameObject conversePanel;
 
+
+    public void OnClickStopGame()
+    {
+        Debug.Log("Menu: Stopping game");
+        server.SendJson(new MessageData
+        {
+            type = "stop_game",
+        });
+        welcomePanel.SetActive(true);
+        gamePanel.SetActive(false);
+        conversePanel.SetActive(false);
+    }
 
     public void OnClickStartAlphabet()
     {
@@ -23,6 +37,7 @@ public class MainMenu : MonoBehaviour
         });
         welcomePanel.SetActive(false);
         gamePanel.SetActive(true);
+        conversePanel.SetActive(false);
     }
 
     public void OnClickStartConversation()
@@ -33,7 +48,9 @@ public class MainMenu : MonoBehaviour
             type = "start_conversation",
         });
         welcomePanel.SetActive(false);
-        gamePanel.SetActive(true);
+        gamePanel.SetActive(false);
+        conversePanel.SetActive(true);
+        server.aiTextReponse.text = "";
     }
 
     [Serializable]
