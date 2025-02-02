@@ -9,7 +9,7 @@ tab = [
     # "WHERE", "WHO", "WHAT", "WHEN", "WHY",
     # "HOW", "YES", "NO", "WANT", "NEED", "GO", "COME", "LIKE", "DISLIKE", "HAPPY", "SAD",
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"
-    # "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V"
+    "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z","thank"
 ]
 
 # URL of the website to scrape
