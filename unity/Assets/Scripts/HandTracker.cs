@@ -1,53 +1,57 @@
 using UnityEngine;
 using Oculus.Interaction.Input;
-using System;
+using TMPro;
+using Unity.VisualScripting;
 
 public class HandTracker : MonoBehaviour
 {
+
     [SerializeField]
     private ServerConnection server;
+    [SerializeField] private Hand LeftHand;
+    [SerializeField] private Hand RightHand;
+    [SerializeField] private OVRCameraRig cameraRig;
 
 
-    [Header("Hands")]
-    [SerializeField]
-    private Hand leftHand;
-    [SerializeField]
-    private Hand rightHand;
-
-    [Header("Settings")]
-    [SerializeField]
-    private float sendCooldown = 0.2f;
-    private float lastTimeDataSent = 0;
-
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        lastTimeDataSent += Time.deltaTime;
-        if (lastTimeDataSent < sendCooldown)
-            return;
-        else
-            lastTimeDataSent -= sendCooldown;
-
-        Debug.Log(leftHand.GetData());
+        Vector3 leftH = getNormalizedHand(LeftHand);
+        Vector3 rightH = getNormalizedHand(RightHand);
+        // Debug.Log($"{leftH}");
         server.SendJson(new HandsData
         {
-            type = "hands",
-            left = leftHand.GetData(),
-            right = rightHand.GetData(),
+            type = "hands_data",
+            left = leftH,
+            right = rightH,
         });
     }
 
-    [Serializable]
+    Vector3 getNormalizedHand(Hand hand)
+    {
+        Vector3 handPosition = hand.GetData().Root.position;
+
+        cameraRig.centerEyeAnchor.GetPositionAndRotation(out Vector3 headsetPosition, out Quaternion headsetRotation);
+        Vector3 euler = headsetRotation.eulerAngles;
+
+        Vector3 delta = handPosition - headsetPosition;
+
+        Quaternion headsetRotat = Quaternion.Euler(euler);
+
+        Vector3 handRelativeToHead = Quaternion.Inverse(headsetRotat) * delta;
+
+        return handRelativeToHead;
+    }
+
+    void Record(Hand left, Hand right)
+    {
+
+    }
+
+    [System.Serializable]
     class HandsData
     {
         public string type;
-        public HandDataAsset left;
-        public HandDataAsset right;
+        public Vector3 left;
+        public Vector3 right;
     }
 }

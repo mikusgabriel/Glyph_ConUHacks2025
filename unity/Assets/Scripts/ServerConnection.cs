@@ -1,13 +1,14 @@
 using NativeWebSocket;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class ServerConnection : MonoBehaviour
 {
     private WebSocket websocket;
-    private readonly string serverUrl = "ws://helpful-blatantly-koi.ngrok-free.app/meta";
-    //private readonly string serverUrl = "ws://echo.websocket.in";
+    private readonly string serverUrl = "wss://helpful-blatantly-koi.ngrok-free.app/meta";
+
 
     private async void Start()
     {
