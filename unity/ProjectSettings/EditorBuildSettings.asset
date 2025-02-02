@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Game.unity
     guid: 349bd3080ab774c78a3771868cf6d463
+  - enabled: 1
+    path: Assets/Scenes/Game guibi.unity
+    guid: 56d0bc6d12f4343e0b52b96479e09597
+  - enabled: 0
+    path: "Assets/Samples/Meta XR Interaction \u200BSDK/72.0.0/Example Scenes/UISetExamples.unity"
+    guid: 07e3686372a704147b219707ee3c6f62
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 3774272a40c4e44fb95a1aeb313b74b3, type: 2}
