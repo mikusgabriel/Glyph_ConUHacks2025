@@ -7,13 +7,19 @@ app = Flask(__name__)
 sock = Sock(app)
 
 
-@sock.route('/meta')
+
+@sock.route('/metaI')
 def meta_websocket(ws):
     """
     This function handles WebSocket connections to /meta.
     """
     print("Meta Headset connected to /meta")
 
+   
+
+    list = []
+    changed = False
+    index = 0
     while True:
         # Receive a message (string) from the client
         raw_message = ws.receive()
@@ -23,7 +29,7 @@ def meta_websocket(ws):
             print("Meta Headset disconnected from /meta")
             break
 
-        print(f"Received message: {raw_message}")
+        # print(f"Received message: {raw_message}")
 
         # Try to parse the message as JSON
         try:
@@ -34,51 +40,60 @@ def meta_websocket(ws):
             continue
 
         # You can implement “event-based” logic:
-        event_type = data.get("event")
-        payload = data.get("payload", {})
+        event_type = data["type"]
+        del data["type"]
 
         if event_type == "hands_data":
-            # print(f"Meta Headset sent hand data: {payload}")
+            # print(f"Meta Headset sent hand data: {data}")
             # Possibly broadcast, handle logic, etc.
+            print("WRITE", data["recording"])
+            if data.get("recording", False) is True:
 
-            if payload["recording"]:
+            
+                print("WRITE", data["recording"])
+                del data["recording"]
+                
+                list.append(data)
 
-                with open('data.json', 'r') as file:
-                    data = json.load(file)
-
-                data['frames'].append(payload)
-
-                # 3. Write the updated data back to the file
-                with open('data.json', 'w') as file:
-                    json.dump(data, file, indent=4)
+                changed = True
 
                 ws.send(json.dumps(
                     {"status": "ok", "event": "hands_recording"}))
+                
 
             else:
-                ws.send(json.dumps(
-                    {"status": "ok", "event": "hand_data_received"}))
 
+                if changed:
+                    with open(f'received_poses_{index}.json', 'w') as file:
+                        json.dump(list, file, indent=4)
+                    changed = False
+                    list = []
+                    index+=1
+                ws.send(json.dumps(
+
+                    {"status": "ok", "event": "hand_data_received"}))
+                
+          
         elif event_type == "start_occupation":
-            print(f"Meta Headset sent hand data: {payload}")
+            print(f"Meta Headset sent hand data: {data}")
             # Possibly broadcast, handle logic, etc.
             ws.send(json.dumps({"status": "ok", "event": "start_occupation"}))
 
         elif event_type == "start_discover":
-            print(f"Meta Headset sent hand data: {payload}")
+            print(f"Meta Headset sent hand data: {data}")
             # Possibly broadcast, handle logic, etc.
             ws.send(json.dumps({"status": "ok", "event": "start_discover"}))
         elif event_type == "start_conversation":
-            print(f"Meta Headset sent hand data: {payload}")
+            print(f"Meta Headset sent hand data: {data}")
             # Possibly broadcast, handle logic, etc.
             ws.send(json.dumps(
                 {"status": "ok", "event": "start_conversation"}))
         elif event_type == "hands_recording":
-            print(f"Meta Headset sent hand data: {payload}")
+            print(f"Meta Headset sent hand data: {data}")
             # Possibly broadcast, handle logic, etc.
 
         elif event_type == "user_voice_command":
-            print(f"Meta Headset sent voice command: {payload}")
+            print(f"Meta Headset sent voice command: {data}")
             # Implement your custom logic
             ws.send(json.dumps(
                 {"status": "ok", "event": "voice_command_received"}))
