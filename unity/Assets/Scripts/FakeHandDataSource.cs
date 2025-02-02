@@ -1,17 +1,16 @@
 using System;
 using UnityEngine;
 using Oculus.Interaction.Input;
-using System.Linq;
 
 public class FakeHandDataSource : MonoBehaviour, IHand
 {
     private Pose[] _poses;
-    private Quaternion _rootRotation;
+    private Pose _rootPose;
 
-    public void SetCurrentPoses(ReadOnlyHandJointPoses poses, Quaternion rootRotation)
+    public void SetCurrentPoses(Pose[] poses, Pose rootPose)
     {
-        _poses = poses.ToArray();
-        _rootRotation = rootRotation;
+        _poses = poses;
+        _rootPose = rootPose;
         _currentDataVersion += 1;
         WhenHandUpdated.Invoke();
     }
@@ -135,15 +134,7 @@ public class FakeHandDataSource : MonoBehaviour, IHand
 
     public bool GetRootPose(out Pose pose)
     {
-        if (_poses.Length == (int)HandJointId.HandPalm)
-        {
-            pose = Pose.identity;
-            return false;
-        }
-
-        pose = _poses[(int)HandJointId.HandPalm];
-        pose.rotation = _rootRotation;
-        pose.position = gameObject.transform.position;
+        pose = _rootPose;
         return true;
     }
 }
