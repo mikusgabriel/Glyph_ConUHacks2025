@@ -7,7 +7,7 @@ using UnityEngine;
 public class ServerConnection : MonoBehaviour
 {
     private WebSocket websocket;
-    private readonly string serverUrl = "wss://conu.guibi.dev/meta";
+    private readonly string serverUrl = "wss://helpful-blatantly-koi.ngrok-free.app/meta";
 
 
     private async void Start()
